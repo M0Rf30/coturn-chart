@@ -1,4 +1,4 @@
-{{- if .Values.mysql.enabled }}
+{{- if or .Values.mysql.enabled .Values.externalDatabase.enabled .Values.postgresql.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -61,4 +61,71 @@ data:
         password varchar(127),
         primary key (name)
     );
+
+{{- if .Values.mysql.enabled }}
+{{ if not (empty .Values.mysql.auth.existingSecret) }}
+{{- $username := (lookup "v1" "Secret" .Release.Namespace .Values.mysql.auth.secretKeys.username).data.username | b64dec }}
+    ALTER TABLE turnusers_lt OWNER TO {{ $username }};
+    ALTER TABLE turn_secret OWNER TO {{ $username }};
+    ALTER TABLE allowed_peer_ip OWNER TO {{ $username }};
+    ALTER TABLE denied_peer_ip OWNER TO {{ $username }};
+    ALTER TABLE turn_origin_to_realm OWNER TO {{ $username }};
+    ALTER TABLE turn_realm_option OWNER TO {{ $username }};
+    ALTER TABLE oauth_key OWNER TO {{ $username }};
+    ALTER TABLE admin_user OWNER TO {{ $username }};
+{{ else }}
+    ALTER TABLE turnusers_lt OWNER TO {{ .Values.mysql.auth.username }};
+    ALTER TABLE turn_secret OWNER TO {{ .Values.mysql.auth.username }};
+    ALTER TABLE allowed_peer_ip OWNER TO {{ .Values.mysql.auth.username }};
+    ALTER TABLE denied_peer_ip OWNER TO {{ .Values.mysql.auth.username }};
+    ALTER TABLE turn_origin_to_realm OWNER TO {{ .Values.mysql.auth.username }};
+    ALTER TABLE turn_realm_option OWNER TO {{ .Values.mysql.auth.username }};
+    ALTER TABLE oauth_key OWNER TO {{ .Values.mysql.auth.username }};
+    ALTER TABLE admin_user OWNER TO {{ .Values.mysql.auth.username }};
+{{ end }}
+{{- end }}
+{{ if .Values.postgresql.enabled }}
+{{- if not (empty .Values.postgresql.global.postgresql.auth.existingSecret) }}
+{{- $username := (lookup "v1" "Secret" .Release.Namespace .Values.postgresql.global.postgresql.auth.secretKeys.username).data.username | b64dec }}
+    ALTER TABLE turnusers_lt OWNER TO {{ $username }};
+    ALTER TABLE turn_secret OWNER TO {{ $username }};
+    ALTER TABLE allowed_peer_ip OWNER TO {{ $username }};
+    ALTER TABLE denied_peer_ip OWNER TO {{ $username }};
+    ALTER TABLE turn_origin_to_realm OWNER TO {{ $username }};
+    ALTER TABLE turn_realm_option OWNER TO {{ $username }};
+    ALTER TABLE oauth_key OWNER TO {{ $username }};
+    ALTER TABLE admin_user OWNER TO {{ $username }};
+{{ else }}
+    ALTER TABLE turnusers_lt OWNER TO {{ .Values.postgresql.global.postgresql.auth.username }};
+    ALTER TABLE turn_secret OWNER TO {{ .Values.postgresql.global.postgresql.auth.username }};
+    ALTER TABLE allowed_peer_ip OWNER TO {{ .Values.postgresql.global.postgresql.auth.username }};
+    ALTER TABLE denied_peer_ip OWNER TO {{ .Values.postgresql.global.postgresql.auth.username }};
+    ALTER TABLE turn_origin_to_realm OWNER TO {{ .Values.postgresql.global.postgresql.auth.username }};
+    ALTER TABLE turn_realm_option OWNER TO {{ .Values.postgresql.global.postgresql.auth.username }};
+    ALTER TABLE oauth_key OWNER TO {{ .Values.postgresql.global.postgresql.auth.username }};
+    ALTER TABLE admin_user OWNER TO {{ .Values.postgresql.global.postgresql.auth.username }};
+{{ end }}
+{{- end }}
+{{- if .Values.externalDatabase.enabled }}
+{{ if not (empty .Values.externalDatabase.existingSecret) }}
+{{- $username := (lookup "v1" "Secret" .Release.Namespace .Values.externalDatabase.secretKeys.username).data.username | b64dec }}
+    ALTER TABLE turnusers_lt OWNER TO {{ $username }};
+    ALTER TABLE turn_secret OWNER TO {{ $username }};
+    ALTER TABLE allowed_peer_ip OWNER TO {{ $username }};
+    ALTER TABLE denied_peer_ip OWNER TO {{ $username }};
+    ALTER TABLE turn_origin_to_realm OWNER TO {{ $username }};
+    ALTER TABLE turn_realm_option OWNER TO {{ $username }};
+    ALTER TABLE oauth_key OWNER TO {{ $username }};
+    ALTER TABLE admin_user OWNER TO {{ $username }};
+{{ else }}
+    ALTER TABLE turnusers_lt OWNER TO {{ .Values.externalDatabase.username }};
+    ALTER TABLE turn_secret OWNER TO {{ .Values.externalDatabase.username }};
+    ALTER TABLE allowed_peer_ip OWNER TO {{ .Values.externalDatabase.username }};
+    ALTER TABLE denied_peer_ip OWNER TO {{ .Values.externalDatabase.username }};
+    ALTER TABLE turn_origin_to_realm OWNER TO {{ .Values.externalDatabase.username }};
+    ALTER TABLE turn_realm_option OWNER TO {{ .Values.externalDatabase.username }};
+    ALTER TABLE oauth_key OWNER TO {{ .Values.externalDatabase.username }};
+    ALTER TABLE admin_user OWNER TO {{ .Values.externalDatabase.username }};
+{{ end }}
+{{- end }}
 {{- end }}

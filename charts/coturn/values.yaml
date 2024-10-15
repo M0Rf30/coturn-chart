@@ -110,7 +110,7 @@ postgresql:
   primary:
     initdb:
       # -- ConfigMap with scripts to be run at first boot
-      scriptsConfigMap: ""
+      scriptsConfigMap: initdb-scripts-config
 
 # MySQL chart configuration
 # see: https://github.com/bitnami/charts/tree/main/bitnami/mysql
